@@ -1,0 +1,32 @@
+################################################################################
+# This file records directories to be synced/verified by SyncDroid.
+
+# Each directory should be placed on a separate line.
+# Surrounding double quotes are optional, unless folder names start or end with whitespace.
+# Directories are listed relative to the Android device root directory (i.e., `/storage/emulated/0`).
+# The path to the Android device root directory can be modified by editing 'DevRootPath' in `~/.config/syncdroid/config.sh`.
+
+# The following will be ignored:
+# - Empty lines.
+# - Leading and trailing whitespace.
+# - Lines starting with `#`.
+# - Content following a `#` on any given line (with subsequent whitespace trimming).
+
+# Examples:
+# DCIM # My photos
+# My Folder/Private/Important # My important files
+#   " A  F O L D E R / XYZ " # Directory ' A  F O L D E R ' containing ' XYZ '
+################################################################################
+
+Aegis Vault Backup
+#Android
+DCIM
+Documents
+#Download
+#Movies
+#Music
+#Pictures
+Recordings # Voice Memos
+Signal Messenger Backups
+SMS & MMS Backups
+Termux Configuration

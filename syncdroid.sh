@@ -32,15 +32,15 @@ function syncdroid() {
             source "$USER_SETTINGS_FILE_PATH"
 
             # Print out the variables in a way that can be processed by 'eval'.
-            echo "local PARENT_DIR_NAME=\$ParentDirName"
-            echo "local ONLINE_REMOTE_NAME=\$OnlineRemoteName"
-            echo "local LOCAL_REMOTE_NAME=\$LocalRemoteName"
-            echo "local DEVICE_ROOT_PATH=\$DevRootPath"
-            echo "local DIR_SYNC_LIST_PATH=\$DirSyncListPath"
-            echo "local LOCAL_CONNECTION_TEST_URL=\$LocalConnectionTestURL"
-            echo "local ONLINE_CONNECTION_TEST_URL=\$OnlineConnectionTestURL"
-            echo "local CONNECTION_TEST_TIMEOUT=\$ConnectionTestTimeout"
-            echo "local CONNECTION_TEST_PACKETS=\$ConnectionTestPackets"
+            echo "local PARENT_DIR_NAME=\"$ParentDirName\""
+            echo "local ONLINE_REMOTE_NAME=\"$OnlineRemoteName\""
+            echo "local LOCAL_REMOTE_NAME=\"$LocalRemoteName\""
+            echo "local DEVICE_ROOT_PATH=\"$DevRootPath\""
+            echo "local DIR_SYNC_LIST_PATH=\"$DirSyncListPath\""
+            echo "local LOCAL_CONNECTION_TEST_URL=\"$LocalConnectionTestURL\""
+            echo "local ONLINE_CONNECTION_TEST_URL=\"$OnlineConnectionTestURL\""
+            echo "local CONNECTION_TEST_TIMEOUT=\"$ConnectionTestTimeout\""
+            echo "local CONNECTION_TEST_PACKETS=\"$ConnectionTestPackets\""
         )
     )"
 

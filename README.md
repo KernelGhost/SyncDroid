@@ -1,6 +1,8 @@
 # SyncDroid
 `SyncDroid` is a Bash script designed to synchronise specified directories from an Android device to a local or online `rclone` remote. It ensures that files and folders on the Android device remain unmodified whilst keeping the `rclone` remote up-to-date. With `SyncDroid`, any changes or updates are applied solely to `rclone` remotes, ensuring that the source directories and the destination remote remain identical.
 
+<img src="./Demonstration.png" alt="SyncDroid Demonstration Screenshot" width="350"/>
+
 ## Features
 - **Sync Folders**: Synchronise selected directories from an Android device to an `rclone` remote.
 - **Verify Files**: Verify the integrity of remote data by comparing checksums.

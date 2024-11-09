@@ -9,35 +9,38 @@
 # Ensure that variable names remain unchanged and only the values after the '='
 # are edited. These settings will be treated as constants once loaded.
 # ------------------------------------------------------------------------------
-# ParentDirName            Name of folder on rclone remote containing sync.
 # OnlineRemoteName         Name of online rclone remote.
 # LocalRemoteName          Name of local rclone remote.
 # DevRootPath              Android device root directory path.
 # DirSyncListPath          Path to file containing list of directories to sync.
+# OnlineRemotePath         Path to use on the online remote.
+# LocalRemotePath          Path to use on the local remote.
 # LocalConnectionTestURL   URL of machine hosting local rclone remote.
 # OnlineConnectionTestURL  URL of any website to test internet connection.
 # ConnectionTestPackets    Number of packets to use during connection test.
 # ConnectionTestTimeout    Max number of seconds to wait for connection test.
 # ------------------------------------------------------------------------------
 # EXAMPLES:
-# ParentDirName="Phone_Backup"
 # OnlineRemoteName="CryptGDrive"
 # LocalRemoteName="CryptCastor"
 # DevRootPath="/storage/emulated/0"
 # DirSyncListPath="${HOME}/.config/syncdroid/dirsynclist.txt"
+# OnlineRemotePath="ENCRYPTED/Android_Backup"
+# LocalRemotePath="/media/Backup_HDD/RCLONE/ENCRYPTED/Android_Backup"
 # LocalConnectionTestURL="Raymond.local"
 # OnlineConnectionTestURL="www.google.com"
 # ConnectionTestPackets="4"
 # ConnectionTestTimeout="5"
 # ------------------------------------------------------------------------------
 # NAMES
-ParentDirName="Phone_Backup"
-OnlineRemoteName="CryptGDrive"
-LocalRemoteName="CryptCastor"
+OnlineRemoteName="GDrive_Crypt" # Wraps 'GDrive:RCLONE'
+LocalRemoteName="Raymond_Crypt" # Wraps 'Raymond:/media/Castor/RCLONE'
 
 # PATHS
 DevRootPath="/storage/emulated/0"
 DirSyncListPath="${HOME}/.config/syncdroid/directory_sync_list.txt"
+OnlineRemotePath="ENCRYPTED/Rohan_S23_Backup"
+LocalRemotePath="ENCRYPTED/Rohan_S23_Backup"
 
 # ADDRESSES
 LocalConnectionTestURL="Raymond.local"

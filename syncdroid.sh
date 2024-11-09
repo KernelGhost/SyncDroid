@@ -32,11 +32,12 @@ function syncdroid() {
             source "$USER_SETTINGS_FILE_PATH"
 
             # Print out the variables in a way that can be processed by 'eval'.
-            echo "local PARENT_DIR_NAME=\"$ParentDirName\""
             echo "local ONLINE_REMOTE_NAME=\"$OnlineRemoteName\""
             echo "local LOCAL_REMOTE_NAME=\"$LocalRemoteName\""
             echo "local DEVICE_ROOT_PATH=\"$DevRootPath\""
             echo "local DIR_SYNC_LIST_PATH=\"$DirSyncListPath\""
+            echo "local ONLINE_REMOTE_PATH=\"$OnlineRemotePath\""
+            echo "local LOCAL_REMOTE_PATH=\"$LocalRemotePath\""
             echo "local LOCAL_CONNECTION_TEST_URL=\"$LocalConnectionTestURL\""
             echo "local ONLINE_CONNECTION_TEST_URL=\"$OnlineConnectionTestURL\""
             echo "local CONNECTION_TEST_TIMEOUT=\"$ConnectionTestTimeout\""
@@ -44,21 +45,12 @@ function syncdroid() {
         )
     )"
 
-    # Online Rclone Remote Path
-    # Note: 'crypt' remote 'CryptGDrive' configured to use 'drive' remote 'GDrive:Rclone'.
-    # Note: Encrypted data will be stored at 'GDrive:Rclone/Phone_Backup'.
-    local ONLINE_REMOTE_PATH="${ONLINE_REMOTE_NAME}:${PARENT_DIR_NAME}"
-
-    # Local Rclone Remote Path
-    # Note: 'crypt' remote 'CryptCastor' configured to use 'sftp' remote 'Raymond:/media/Castor/RCLONE'.
-    # Note: Encrypted data will be stored at 'Raymond:/media/Castor/RCLONE/Phone_Backup'.
-    local LOCAL_REMOTE_PATH="${LOCAL_REMOTE_NAME}:${PARENT_DIR_NAME}"
-
     # Make the variables read-only.
-    readonly PARENT_DIR_NAME ONLINE_REMOTE_NAME LOCAL_REMOTE_NAME \
-            DEVICE_ROOT_PATH DIR_SYNC_LIST_PATH LOCAL_CONNECTION_TEST_URL \
-            ONLINE_CONNECTION_TEST_URL CONNECTION_TEST_TIMEOUT CONNECTION_TEST_PACKETS \
-            ONLINE_REMOTE_PATH LOCAL_REMOTE_PATH
+    readonly ONLINE_REMOTE_NAME LOCAL_REMOTE_NAME \
+            DEVICE_ROOT_PATH DIR_SYNC_LIST_PATH ONLINE_REMOTE_PATH \
+            LOCAL_REMOTE_PATH LOCAL_CONNECTION_TEST_URL \
+            ONLINE_CONNECTION_TEST_URL CONNECTION_TEST_TIMEOUT \
+            CONNECTION_TEST_PACKETS
 
     # CONSTANTS - ANSI ESCAPE SEQUENCES
     local ANSI_RED="\e[1;31m"
@@ -76,6 +68,8 @@ function syncdroid() {
     local SYNC_FLAG=0
     local VERIFY_FLAG=0
     local LOCAL_FLAG=0
+    local REMOTE
+    local REMOTE_NAME
     local REMOTE_PATH
     local IMPORTED_FILE
     local LOCAL_DIRS
@@ -147,11 +141,25 @@ function syncdroid() {
         return 1
     fi
 
-    # Set rclone remote path.
+    # Set rclone remote name and path.
     if [ "$LOCAL_FLAG" -eq 0 ]; then
+        # Name
+        REMOTE_NAME="$ONLINE_REMOTE_NAME"
+
+        # Path
         REMOTE_PATH="$ONLINE_REMOTE_PATH"
+
+        # Name + Path (e.g. Remote:path/to/directory)
+        REMOTE="${ONLINE_REMOTE_NAME}:${ONLINE_REMOTE_PATH}"
     else
+        # Name
+        REMOTE_NAME="$LOCAL_REMOTE_NAME"
+
+        # Path
         REMOTE_PATH="$LOCAL_REMOTE_PATH"
+
+        # Name + Path (e.g. Remote:path/to/directory)
+        REMOTE="${LOCAL_REMOTE_NAME}:${LOCAL_REMOTE_PATH}"
     fi
 
     # TEST CONNECTION
@@ -244,18 +252,18 @@ function syncdroid() {
     fi
 
     # ENSURE SPECIFIED REMOTE EXISTS
-    if [ -z $(rclone listremotes --ask-password=false | grep -E "^${REMOTE_PATH%%:*}:$") ]; then
-        echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} Remote '${REMOTE_PATH%%:*}' does not exist! Quitting."
+    if [ -z $(rclone listremotes --ask-password=false | grep -E "^${REMOTE_NAME}:$") ]; then
+        echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} Remote '${REMOTE_NAME}' does not exist! Quitting."
         return 6
     fi
 
-    # Create 'PARENT_DIR_NAME' if it does not already exist.
-    rclone mkdir "$REMOTE_PATH" --ask-password=false
+    # Create the directory to use if it does not already exist.
+    rclone mkdir "$REMOTE" --ask-password=false
 
     # REMOVE ABANDONED DIRECTORIES
     # Identify directories present on remote.
     # Note: 'awk' is required to remove trailing forward slashes after directory names.
-    readarray -t REMOTE_DIRS < <(rclone lsf --dirs-only $REMOTE_PATH | awk '{sub(/\/$/, "", $0); print}')
+    readarray -t REMOTE_DIRS < <(rclone lsf --dirs-only $REMOTE | awk '{sub(/\/$/, "", $0); print}')
 
     # Identify directories on remote that are not listed for synchronisation (abandoned directories).
     for element in "${REMOTE_DIRS[@]}"; do
@@ -283,7 +291,7 @@ function syncdroid() {
                     # Loop through and delete abandoned directories.
                     for ((ctr=0; ctr<${#ABANDONED_DIRS[@]}; ctr++)); do
                         echo -e "${ANSI_BLUE}[INFO]${ANSI_CLEAR} Deleting \"${ABANDONED_DIRS[ctr]}\" ${ANSI_GREEN}($((ctr + 1))/${#ABANDONED_DIRS[@]})${ANSI_CLEAR}"
-                        rclone purge "${REMOTE_PATH}/${ABANDONED_DIRS[ctr]}"
+                        rclone purge "${REMOTE}/${ABANDONED_DIRS[ctr]}"
                     done
 
                     # Newline.
@@ -314,10 +322,14 @@ function syncdroid() {
         if [[ -d "${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}" ]]; then
             if [ "$SYNC_FLAG" -eq 1 ]; then
                 echo -e "${ANSI_BLUE}[INFO]${ANSI_CLEAR} Syncing \"${LOCAL_DIRS[ctr]}\" ${ANSI_GREEN}($((ctr + 1))/${#LOCAL_DIRS[@]})${ANSI_CLEAR}"
-                rclone sync "${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}" "${REMOTE_PATH}/${LOCAL_DIRS[ctr]}" --delete-before --progress
+                rclone sync "${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}" "${REMOTE}/${LOCAL_DIRS[ctr]}" --progress
             else
                 echo -e "${ANSI_BLUE}[INFO]${ANSI_CLEAR} Verifying \"${LOCAL_DIRS[ctr]}\" ${ANSI_GREEN}($((ctr + 1))/${#LOCAL_DIRS[@]})${ANSI_CLEAR}"
-                rclone cryptcheck "${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}" "${REMOTE_PATH}/${LOCAL_DIRS[ctr]}" --progress
+                if [[ $(rclone config show "$REMOTE_PATH" | grep "^type = .*$" | sed "s/type = //") == "crypt" ]]; then
+                    rclone cryptcheck "${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}" "${REMOTE}/${LOCAL_DIRS[ctr]}" --progress
+                else
+                    rclone check "${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}" "${REMOTE}/${LOCAL_DIRS[ctr]}" --progress
+                fi
             fi
         else
             echo -e "${ANSI_YELLOW}[WARN]${ANSI_CLEAR} The directory \"${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}\" does not exist. Skipping..."

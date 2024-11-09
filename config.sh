@@ -33,13 +33,13 @@
 # ConnectionTestTimeout="5"
 # ------------------------------------------------------------------------------
 # NAMES
-OnlineRemoteName="GDrive_Crypt" # Wraps 'GDrive:RCLONE'
+OnlineRemoteName="GDrive_Crypt" # Wraps 'GDrive:ENCRYPTED_RCLONE_REMOTE'
 LocalRemoteName="Raymond_Crypt" # Wraps 'Raymond:/media/Castor/RCLONE/ENCRYPTED'
 
 # PATHS
 DevRootPath="/storage/emulated/0"
 DirSyncListPath="${HOME}/.config/syncdroid/directory_sync_list.txt"
-OnlineRemotePath="ENCRYPTED/Rohan_S23_Backup"
+OnlineRemotePath="Rohan_S23_Backup"
 LocalRemotePath="Rohan_S23_Backup"
 
 # ADDRESSES

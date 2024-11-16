@@ -225,7 +225,7 @@ function syncdroid() {
         echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} No directories were specified! Quitting."
         return 4
     fi
-    
+
     # List the paths to the directories.
     echo -e "${ANSI_BLUE}[INFO]${ANSI_CLEAR} Directories:"
     for ((ctr=0; ctr<${#LOCAL_DIRS[@]}; ctr++)); do
@@ -325,7 +325,7 @@ function syncdroid() {
                 rclone sync "${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}" "${REMOTE}/${LOCAL_DIRS[ctr]}" --progress
             else
                 echo -e "${ANSI_BLUE}[INFO]${ANSI_CLEAR} Verifying \"${LOCAL_DIRS[ctr]}\" ${ANSI_GREEN}($((ctr + 1))/${#LOCAL_DIRS[@]})${ANSI_CLEAR}"
-                if [[ $(rclone config show "$REMOTE_PATH" | grep "^type = .*$" | sed "s/type = //") == "crypt" ]]; then
+                if [[ $(rclone config show "$REMOTE_NAME" | grep "^type = .*$" | sed "s/type = //") == "crypt" ]]; then
                     rclone cryptcheck "${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}" "${REMOTE}/${LOCAL_DIRS[ctr]}" --progress
                 else
                     rclone check "${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}" "${REMOTE}/${LOCAL_DIRS[ctr]}" --progress

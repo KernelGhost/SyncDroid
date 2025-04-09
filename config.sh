@@ -9,42 +9,45 @@
 # Ensure that variable names remain unchanged and only the values after the '='
 # are edited. These settings will be treated as constants once loaded.
 # ------------------------------------------------------------------------------
-# OnlineRemoteName         Name of online rclone remote.
-# LocalRemoteName          Name of local rclone remote.
-# DevRootPath              Android device root directory path.
-# DirSyncListPath          Path to file containing list of directories to sync.
-# OnlineRemotePath         Path to use on the online remote.
-# LocalRemotePath          Path to use on the local remote.
-# LocalConnectionTestURL   URL of machine hosting local rclone remote.
-# OnlineConnectionTestURL  URL of any website to test internet connection.
-# ConnectionTestPackets    Number of packets to use during connection test.
-# ConnectionTestTimeout    Max number of seconds to wait for connection test.
+# OffsiteRemoteName         Name of offsite rclone remote.
+# OnsiteRemoteName          Name of onsite rclone remote.
+# DevRootPath               Android device root directory path.
+# DirSyncListPath           Path to file containing list of directories to sync.
+# OffsiteRemotePath         Path to use on the offsite remote.
+# OnsiteRemotePath          Path to use on the onsite remote.
+# OnsiteConnectionTestPort  Port of machine hosting onsite rclone remote.
+# OnsiteConnectionTestURL   URL of machine hosting onsite rclone remote.
+# OffsiteConnectionTestURL  URL of any website to test internet connection.
+# ConnectionTestPackets     Number of packets to use during connection test.
+# ConnectionTestTimeout     Max number of seconds to wait for connection test.
 # ------------------------------------------------------------------------------
 # EXAMPLES:
-# OnlineRemoteName="CryptGDrive"
-# LocalRemoteName="CryptCastor"
+# OffsiteRemoteName="CryptGDrive"
+# OnsiteRemoteName="CryptCastor"
 # DevRootPath="/storage/emulated/0"
 # DirSyncListPath="${HOME}/.config/syncdroid/dirsynclist.txt"
-# OnlineRemotePath="ENCRYPTED/Android_Backup"
-# LocalRemotePath="/media/Backup_HDD/RCLONE/ENCRYPTED/Android_Backup"
-# LocalConnectionTestURL="Raymond.local"
-# OnlineConnectionTestURL="www.google.com"
+# OffsiteRemotePath="ENCRYPTED/Android_Backup"
+# OnsiteRemotePath="/media/Backup_HDD/RCLONE/ENCRYPTED/Android_Backup"
+# OnsiteConnectionTestPort="22"
+# OnsiteConnectionTestURL="Raymond.local"
+# OffsiteConnectionTestURL="www.google.com"
 # ConnectionTestPackets="4"
 # ConnectionTestTimeout="5"
 # ------------------------------------------------------------------------------
 # NAMES
-OnlineRemoteName="GDrive_Crypt" # Wraps 'GDrive:ENCRYPTED_RCLONE_REMOTE'
-LocalRemoteName="Raymond_Crypt" # Wraps 'Raymond:/media/Castor/RCLONE/ENCRYPTED'
+OffsiteRemoteName="GDrive_Crypt" # Wraps 'GDrive:ENCRYPTED_RCLONE_REMOTE'
+OnsiteRemoteName="Raymond_Crypt" # Wraps 'Raymond:/media/Castor/RCLONE/ENCRYPTED'
 
 # PATHS
 DevRootPath="/storage/emulated/0"
 DirSyncListPath="${HOME}/.config/syncdroid/directory_sync_list.txt"
-OnlineRemotePath="Rohan_S23_Backup"
-LocalRemotePath="Rohan_S23_Backup"
+OffsiteRemotePath="Rohan_S23_Backup"
+OnsiteRemotePath="Rohan_S23_Backup"
 
 # ADDRESSES
-LocalConnectionTestURL="Raymond.local"
-OnlineConnectionTestURL="www.google.com"
+OnsiteConnectionTestPort="22"
+OnsiteConnectionTestURL="Raymond.local"
+OffsiteConnectionTestURL="www.google.com"
 
 # OTHER
 ConnectionTestPackets="4"

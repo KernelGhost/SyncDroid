@@ -32,24 +32,25 @@ function syncdroid() {
             source "$USER_SETTINGS_FILE_PATH"
 
             # Print out the variables in a way that can be processed by 'eval'.
-            echo "local ONLINE_REMOTE_NAME=\"$OnlineRemoteName\""
-            echo "local LOCAL_REMOTE_NAME=\"$LocalRemoteName\""
+            echo "local OFFSITE_REMOTE_NAME=\"$OffsiteRemoteName\""
+            echo "local ONSITE_REMOTE_NAME=\"$OnsiteRemoteName\""
             echo "local DEVICE_ROOT_PATH=\"$DevRootPath\""
             echo "local DIR_SYNC_LIST_PATH=\"$DirSyncListPath\""
-            echo "local ONLINE_REMOTE_PATH=\"$OnlineRemotePath\""
-            echo "local LOCAL_REMOTE_PATH=\"$LocalRemotePath\""
-            echo "local LOCAL_CONNECTION_TEST_URL=\"$LocalConnectionTestURL\""
-            echo "local ONLINE_CONNECTION_TEST_URL=\"$OnlineConnectionTestURL\""
+            echo "local OFFSITE_REMOTE_PATH=\"$OffsiteRemotePath\""
+            echo "local ONSITE_REMOTE_PATH=\"$OnsiteRemotePath\""
+            echo "local ONSITE_CONNECTION_TEST_PORT=\"$OnsiteConnectionTestPort\""
+            echo "local ONSITE_CONNECTION_TEST_URL=\"$OnsiteConnectionTestURL\""
+            echo "local OFFSITE_CONNECTION_TEST_URL=\"$OffsiteConnectionTestURL\""
             echo "local CONNECTION_TEST_TIMEOUT=\"$ConnectionTestTimeout\""
             echo "local CONNECTION_TEST_PACKETS=\"$ConnectionTestPackets\""
         )
     )"
 
     # Make the variables read-only.
-    readonly ONLINE_REMOTE_NAME LOCAL_REMOTE_NAME \
-            DEVICE_ROOT_PATH DIR_SYNC_LIST_PATH ONLINE_REMOTE_PATH \
-            LOCAL_REMOTE_PATH LOCAL_CONNECTION_TEST_URL \
-            ONLINE_CONNECTION_TEST_URL CONNECTION_TEST_TIMEOUT \
+    readonly OFFSITE_REMOTE_NAME ONSITE_REMOTE_NAME \
+            DEVICE_ROOT_PATH DIR_SYNC_LIST_PATH OFFSITE_REMOTE_PATH \
+            ONSITE_REMOTE_PATH ONSITE_CONNECTION_TEST_URL \
+            OFFSITE_CONNECTION_TEST_URL CONNECTION_TEST_TIMEOUT \
             CONNECTION_TEST_PACKETS
 
     # CONSTANTS - ANSI ESCAPE SEQUENCES
@@ -83,14 +84,14 @@ function syncdroid() {
         case "$1" in
             -s|--sync)
                 if [ "$VERIFY_FLAG" -eq 1 ]; then
-                    echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} Cannot specify both '--sync' (-s) and '--verify' (-v)! Quitting."
+                    echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} Cannot specify both '--sync' (-s) and '--verify' (-v)! Quitting."
                     return 1
                 fi
                 SYNC_FLAG=1
                 ;;
             -v|--verify)
                 if [ "$SYNC_FLAG" -eq 1 ]; then
-                    echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} Cannot specify both '--sync' (-s) and '--verify' (-v)! Quitting."
+                    echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} Cannot specify both '--sync' (-s) and '--verify' (-v)! Quitting."
                     return 1
                 fi
                 VERIFY_FLAG=1
@@ -99,7 +100,7 @@ function syncdroid() {
                 LOCAL_FLAG=1
                 ;;
             --*)
-                echo -e "${ANSI_YELLOW}[WARN]${ANSI_CLEAR} Invalid argument '$1'. Ignoring."
+                echo -e "${ANSI_YELLOW}[WARNING]${ANSI_CLEAR} Invalid argument '$1'. Ignoring."
                 ;;
             -*)
                 # Handle combined arguments (e.g., '-vl' and '-vs').
@@ -107,14 +108,14 @@ function syncdroid() {
                     case "${1:ctr:1}" in
                         s)
                             if [ "$VERIFY_FLAG" -eq 1 ]; then
-                                echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} Cannot specify both '--sync' (-s) and '--verify' (-v)! Quitting."
+                                echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} Cannot specify both '--sync' (-s) and '--verify' (-v)! Quitting."
                                 return 1
                             fi
                             SYNC_FLAG=1
                             ;;
                         v)
                             if [ "$SYNC_FLAG" -eq 1 ]; then
-                                echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} Cannot specify both '--sync' (-s) and '--verify' (-v)! Quitting."
+                                echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} Cannot specify both '--sync' (-s) and '--verify' (-v)! Quitting."
                                 return 1
                             fi
                             VERIFY_FLAG=1
@@ -123,13 +124,13 @@ function syncdroid() {
                             LOCAL_FLAG=1
                             ;;
                         *)
-                            echo -e "${ANSI_YELLOW}[WARN]${ANSI_CLEAR} Invalid argument '-${1:ctr:1}'. Ignoring."
+                            echo -e "${ANSI_YELLOW}[WARNING]${ANSI_CLEAR} Invalid argument '-${1:ctr:1}'. Ignoring."
                             ;;
                     esac
                 done
                 ;;
             *)
-                echo -e "${ANSI_YELLOW}[WARN]${ANSI_CLEAR} Invalid argument '$1'. Ignoring."
+                echo -e "${ANSI_YELLOW}[WARNING]${ANSI_CLEAR} Invalid argument '$1'. Ignoring."
                 ;;
         esac
         shift
@@ -137,52 +138,52 @@ function syncdroid() {
 
     # Ensure at least one of '--sync' or '--verify' is specified.
     if [ "$SYNC_FLAG" -eq 0 ] && [ "$VERIFY_FLAG" -eq 0 ]; then
-        echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} You must specify either '--sync' (-s) or '--verify' (-v)! Quitting."
+        echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} You must specify either '--sync' (-s) or '--verify' (-v)! Quitting."
         return 1
     fi
 
     # Set rclone remote name and path.
     if [ "$LOCAL_FLAG" -eq 0 ]; then
         # Name
-        REMOTE_NAME="$ONLINE_REMOTE_NAME"
+        REMOTE_NAME="$OFFSITE_REMOTE_NAME"
 
         # Path
-        REMOTE_PATH="$ONLINE_REMOTE_PATH"
+        REMOTE_PATH="$OFFSITE_REMOTE_PATH"
 
         # Name + Path (e.g. Remote:path/to/directory)
-        REMOTE="${ONLINE_REMOTE_NAME}:${ONLINE_REMOTE_PATH}"
+        REMOTE="${OFFSITE_REMOTE_NAME}:${OFFSITE_REMOTE_PATH}"
     else
         # Name
-        REMOTE_NAME="$LOCAL_REMOTE_NAME"
+        REMOTE_NAME="$ONSITE_REMOTE_NAME"
 
         # Path
-        REMOTE_PATH="$LOCAL_REMOTE_PATH"
+        REMOTE_PATH="$ONSITE_REMOTE_PATH"
 
         # Name + Path (e.g. Remote:path/to/directory)
-        REMOTE="${LOCAL_REMOTE_NAME}:${LOCAL_REMOTE_PATH}"
+        REMOTE="${ONSITE_REMOTE_NAME}:${ONSITE_REMOTE_PATH}"
     fi
 
     # TEST CONNECTION
     echo -e "${ANSI_BLUE}[INFO]${ANSI_CLEAR} Testing connection..."
     if [ "$LOCAL_FLAG" -eq 0 ]; then
-        if ping -q -c $CONNECTION_TEST_PACKETS -W $CONNECTION_TEST_TIMEOUT $ONLINE_CONNECTION_TEST_URL &>/dev/null; then
+        if ping -q -c $CONNECTION_TEST_PACKETS -W $CONNECTION_TEST_TIMEOUT $OFFSITE_CONNECTION_TEST_URL &>/dev/null; then
             echo -e "${ANSI_GREEN}[SUCCESS]${ANSI_CLEAR} Internet connection present!\n"
         else
-            echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} No internet connection! Quitting."
+            echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} No internet connection! Quitting."
             return 2
         fi
     else
-        if ping -q -c $CONNECTION_TEST_PACKETS -W $CONNECTION_TEST_TIMEOUT $LOCAL_CONNECTION_TEST_URL &>/dev/null; then
+        if nc -z -w $CONNECTION_TEST_TIMEOUT $ONSITE_CONNECTION_TEST_URL $ONSITE_CONNECTION_TEST_PORT &>/dev/null; then
             echo -e "${ANSI_GREEN}[SUCCESS]${ANSI_CLEAR} SFTP host reachable!\n"
         else
-            echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} SFTP host unreachable! Quitting."
+            echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} SFTP host unreachable! Quitting."
             return 2
         fi
     fi
 
     # CHECK DIRECTORY LIST EXISTS
     if [ ! -f "${DIR_SYNC_LIST_PATH}" ]; then
-        echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} The file containing the directories to sync is missing! Quitting."
+        echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} The file containing the directories to sync is missing! Quitting."
         return 3
     fi
 
@@ -222,7 +223,7 @@ function syncdroid() {
 
     # CHECK FOR EMPTY DIRECTORY ARRAY
     if [ ${#LOCAL_DIRS[@]} -eq 0 ]; then
-        echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} No directories were specified! Quitting."
+        echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} No directories were specified! Quitting."
         return 4
     fi
 
@@ -245,7 +246,7 @@ function syncdroid() {
     # TEST SUPPLIED PASSWORD
     # Note: '--ask-password=false' prevents rclone interactively requesting the password if 'RCLONE_CONFIG_PASS' contains the wrong password.
     if ! rclone config show --ask-password=false &>/dev/null; then
-        echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} Incorrect password! Quitting."
+        echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} Incorrect password! Quitting."
         return 5
     else
         echo -e "${ANSI_GREEN}CORRECT PASSWORD!${ANSI_CLEAR}\n"
@@ -253,7 +254,7 @@ function syncdroid() {
 
     # ENSURE SPECIFIED REMOTE EXISTS
     if [ -z $(rclone listremotes --ask-password=false | grep -E "^${REMOTE_NAME}:$") ]; then
-        echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} Remote '${REMOTE_NAME}' does not exist! Quitting."
+        echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} Remote '${REMOTE_NAME}' does not exist! Quitting."
         return 6
     fi
 
@@ -275,7 +276,7 @@ function syncdroid() {
 
     # Notify user if abandoned directories were found.
     if [ ${#ABANDONED_DIRS[@]} -gt 0 ]; then
-        echo -e "${ANSI_YELLOW}[WARN]${ANSI_CLEAR} The following abandoned directories were detected:"
+        echo -e "${ANSI_YELLOW}[WARNING]${ANSI_CLEAR} The following abandoned directories were detected:"
         for ((ctr=0; ctr<${#ABANDONED_DIRS[@]}; ctr++)); do
             echo "$((ctr + 1)). \"${ABANDONED_DIRS[ctr]}\""
         done
@@ -308,7 +309,7 @@ function syncdroid() {
                     break
                     ;;
                 * )
-                    echo -e "${ANSI_RED}[ERR]${ANSI_CLEAR} Invalid response!"
+                    echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} Invalid response!"
                     ;;
             esac
         done
@@ -332,7 +333,7 @@ function syncdroid() {
                 fi
             fi
         else
-            echo -e "${ANSI_YELLOW}[WARN]${ANSI_CLEAR} The directory \"${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}\" does not exist. Skipping..."
+            echo -e "${ANSI_YELLOW}[WARNING]${ANSI_CLEAR} The directory \"${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}\" does not exist. Skipping..."
         fi
 
         # Newline.

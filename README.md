@@ -45,6 +45,7 @@ syncdroid --verify --local
     ```bash
     pkg update && pkg upgrade
     termux-setup-storage
+    pkg install netcat-openbsd
     pkg install rclone
     ```
 

@@ -280,6 +280,9 @@ function syncdroid() {
                 echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} Private key not found at specified path! Quitting."
                 return 7
             fi
+
+            # Newline
+            echo ""
         fi
     fi
 

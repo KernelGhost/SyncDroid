@@ -18,6 +18,8 @@
 # * 4 --> Empty directory list file.
 # * 5 --> Incorrect 'rclone' configuration file password.
 # * 6 --> Rclone remote does not exist.
+# * 7 --> SSH private key not found.
+# * 8 --> Failed to add SSH private key to 'ssh-agent'.
 # --------------------------------------------------------------------------------
 
 function syncdroid() {
@@ -34,6 +36,7 @@ function syncdroid() {
             # Print out the variables in a way that can be processed by 'eval'.
             echo "local OFFSITE_REMOTE_NAME=\"$OffsiteRemoteName\""
             echo "local ONSITE_REMOTE_NAME=\"$OnsiteRemoteName\""
+            echo "local PRIVATE_KEY_PATH=\"$SSHPrivateKeyPath\""
             echo "local DEVICE_ROOT_PATH=\"$DevRootPath\""
             echo "local DIR_SYNC_LIST_PATH=\"$DirSyncListPath\""
             echo "local OFFSITE_REMOTE_PATH=\"$OffsiteRemotePath\""
@@ -256,6 +259,28 @@ function syncdroid() {
     if [ -z $(rclone listremotes --ask-password=false | grep -E "^${REMOTE_NAME}:$") ]; then
         echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} Remote '${REMOTE_NAME}' does not exist! Quitting."
         return 6
+    fi
+
+    # ADD SSH PRIVATE KEY IF REQUIRED
+    if [ "$LOCAL_FLAG" -eq 1 ]; then
+        if [[ -n "$PRIVATE_KEY_PATH" ]]; then
+            # Silently start 'ssh-agent'
+            if [ -z "$SSH_AUTH_SOCK" ]; then
+                eval "$(ssh-agent -s)" &>/dev/null
+            fi
+
+            # Add private key to 'ssh-agent'
+            echo -e "${ANSI_BLUE}[INFO]${ANSI_CLEAR} Private SSH key specified."
+            if [[ -f "$PRIVATE_KEY_PATH" ]]; then
+                if ! ssh-add "$PRIVATE_KEY_PATH"; then
+                    echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} Failed to add private key! Quitting."
+                    return 8
+                fi
+            else
+                echo -e "${ANSI_RED}[ERROR]${ANSI_CLEAR} Private key not found at specified path! Quitting."
+                return 7
+            fi
+        fi
     fi
 
     # Create the directory to use if it does not already exist.

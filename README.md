@@ -225,20 +225,6 @@ This approach assumes you have already:
 
 6. Configured protection against attacks by blocking repeated failed login attempts and enforcing adequate lockout times.
 
-###### Configure `ssh-agent`
-Add the following to your Android `~/.bash_profile`.
-
-```bash
-# Automatically start ssh-agent and add password-protected private key
-if [ -z "$SSH_AUTH_SOCK" ]; then
-    eval "$(ssh-agent -s)" # Start
-    ssh-add ~/.ssh/id_ed25519 # Add Private Key
-fi
-```
-
-_Note: This will require you to enter the password protecting the private key each time a new session is started._
-
-###### SFTP Remote Configuration
 Set up the `sftp` remote as described above, with the following differences:
 
 1. Specifying the Dynamic DNS (DDNS) URL instead of an mDNS hostname or internal IP address.

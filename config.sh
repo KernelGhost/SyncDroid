@@ -11,6 +11,7 @@
 # ------------------------------------------------------------------------------
 # OffsiteRemoteName         Name of offsite rclone remote.
 # OnsiteRemoteName          Name of onsite rclone remote.
+# SSHPrivateKeyPath         Path to private key file.
 # DevRootPath               Android device root directory path.
 # DirSyncListPath           Path to file containing list of directories to sync.
 # OffsiteRemotePath         Path to use on the offsite remote.
@@ -24,6 +25,7 @@
 # EXAMPLES:
 # OffsiteRemoteName="CryptGDrive"
 # OnsiteRemoteName="CryptCastor"
+# SSHPrivateKeyPath="${HOME}/.ssh/id_ed25519"
 # DevRootPath="/storage/emulated/0"
 # DirSyncListPath="${HOME}/.config/syncdroid/dirsynclist.txt"
 # OffsiteRemotePath="ENCRYPTED/Android_Backup"
@@ -39,6 +41,7 @@ OffsiteRemoteName="GDrive_Crypt" # Wraps 'GDrive:ENCRYPTED_RCLONE_REMOTE'
 OnsiteRemoteName="Raymond_Crypt" # Wraps 'Raymond:/media/Castor/RCLONE/ENCRYPTED'
 
 # PATHS
+SSHPrivateKeyPath="" # Leave this blank if a private key is not used
 DevRootPath="/storage/emulated/0"
 DirSyncListPath="${HOME}/.config/syncdroid/directory_sync_list.txt"
 OffsiteRemotePath="Rohan_S23_Backup"

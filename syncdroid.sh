@@ -290,15 +290,31 @@ function syncdroid() {
     rclone mkdir "$REMOTE" --ask-password=false
 
     # REMOVE ABANDONED DIRECTORIES
-    # Identify directories present on remote.
+    # Recursively identify directories present on remote.
     # Note: 'awk' is required to remove trailing forward slashes after directory names.
-    readarray -t REMOTE_DIRS < <(rclone lsf --dirs-only $REMOTE | awk '{sub(/\/$/, "", $0); print}')
+    readarray -t REMOTE_DIRS < <(rclone lsf --dirs-only --recursive "$REMOTE" | awk '{sub(/\/$/, "", $0); print}')
 
-    # Identify directories on remote that are not listed for synchronisation (abandoned directories).
-    for element in "${REMOTE_DIRS[@]}"; do
-        if ! [[ " ${LOCAL_DIRS[*]} " =~ " ${element} " ]]; then
-            # List directory for deletion.
-            ABANDONED_DIRS+=("$element")
+    # Identify directories on the remote that are not listed for synchronisation (abandoned directories).
+    for remote_dir in "${REMOTE_DIRS[@]}"; do
+        found=false
+        for local_dir in "${LOCAL_DIRS[@]}"; do
+            # We want to retain every remote directory that satisfies any one of the following requirements:
+            # 1. The remote directory matches a specified local directory exactly (e.g. "Documents" & "Documents").
+            # 2. The remote directory is a subdirectory of a specified local directory (e.g. "Documents/Scans/2025" & "Documents").
+            # 3. The remote directory is a parent of a specified local directory (e.g. "Documents" & "Documents/Scans/2025").
+            # These checks are required since 'lsf --dirs-only --recursive' lists the paths of ALL directories on the remote.
+            # - We do not want to erroneously list a parent directory on the remote as abandoned when a subdirectory is listed for synchronisation.
+            # - We do not want to erroneously list a child directory on the remote as abandoned when a parent directory is listed for synchronisation.
+            # Note: Subdirectories (of a specified local parent directory) that have since been deleted locally but remain present on the remote are not flagged as abandoned.
+            #       This is because rclone automatically detects and removes missing subdirectories during synchronisation of a specified parent directory.
+            #       This logic only identifies remote directories as abandoned if they are no longer associated with any specified local directory.
+            if [[ "$remote_dir" == "$local_dir" || "$remote_dir/" == "$local_dir/"* || "$local_dir/" == "$remote_dir/"* ]]; then
+                found=true
+                break
+            fi
+        done
+        if ! $found; then
+            ABANDONED_DIRS+=("$remote_dir")
         fi
     done
 

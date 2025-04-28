@@ -367,7 +367,7 @@ function syncdroid() {
         if [[ -d "${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}" ]]; then
             if [ "$SYNC_FLAG" -eq 1 ]; then
                 echo -e "${ANSI_BLUE}[INFO]${ANSI_CLEAR} Syncing \"${LOCAL_DIRS[ctr]}\" ${ANSI_GREEN}($((ctr + 1))/${#LOCAL_DIRS[@]})${ANSI_CLEAR}"
-                rclone sync "${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}" "${REMOTE}/${LOCAL_DIRS[ctr]}" --progress
+                rclone sync "${DEVICE_ROOT_PATH}/${LOCAL_DIRS[ctr]}" "${REMOTE}/${LOCAL_DIRS[ctr]}" --create-empty-src-dirs --progress
             else
                 echo -e "${ANSI_BLUE}[INFO]${ANSI_CLEAR} Verifying \"${LOCAL_DIRS[ctr]}\" ${ANSI_GREEN}($((ctr + 1))/${#LOCAL_DIRS[@]})${ANSI_CLEAR}"
                 if [[ $(rclone config show "$REMOTE_NAME" | grep "^type = .*$" | sed "s/type = //") == "crypt" ]]; then

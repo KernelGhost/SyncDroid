@@ -320,9 +320,29 @@ function syncdroid() {
 
     # Notify user if abandoned directories were found.
     if [ ${#ABANDONED_DIRS[@]} -gt 0 ]; then
+        # Sort abandoned directories by path length (shortest first)
+        IFS=$'\n' sorted_abandoned=($(sort <<<"${ABANDONED_DIRS[*]}"))
+        unset IFS
+
+        # Prune any entry that is a child of a previously kept entry
+        PRUNED_ABANDONED_DIRS=()
+
+        for dir in "${sorted_abandoned[@]}"; do
+            skip=false
+            for kept in "${PRUNED_ABANDONED_DIRS[@]}"; do
+                if [[ "$dir" == "$kept/"* ]]; then
+                    skip=true
+                    break
+                fi
+            done
+            if ! $skip; then
+                PRUNED_ABANDONED_DIRS+=("$dir")
+            fi
+        done
+
         echo -e "${ANSI_YELLOW}[WARNING]${ANSI_CLEAR} The following abandoned directories were detected:"
-        for ((ctr=0; ctr<${#ABANDONED_DIRS[@]}; ctr++)); do
-            echo "$((ctr + 1)). \"${ABANDONED_DIRS[ctr]}\""
+        for ((ctr=0; ctr<${#PRUNED_ABANDONED_DIRS[@]}; ctr++)); do
+            echo "$((ctr + 1)). \"${PRUNED_ABANDONED_DIRS[ctr]}\""
         done
 
         # Newline
@@ -334,9 +354,9 @@ function syncdroid() {
             case "$user_choice" in
                 [Yy]* )
                     # Loop through and delete abandoned directories.
-                    for ((ctr=0; ctr<${#ABANDONED_DIRS[@]}; ctr++)); do
-                        echo -e "${ANSI_BLUE}[INFO]${ANSI_CLEAR} Deleting \"${ABANDONED_DIRS[ctr]}\" ${ANSI_GREEN}($((ctr + 1))/${#ABANDONED_DIRS[@]})${ANSI_CLEAR}"
-                        rclone purge "${REMOTE}/${ABANDONED_DIRS[ctr]}"
+                    for ((ctr=0; ctr<${#PRUNED_ABANDONED_DIRS[@]}; ctr++)); do
+                        echo -e "${ANSI_BLUE}[INFO]${ANSI_CLEAR} Deleting \"${PRUNED_ABANDONED_DIRS[ctr]}\" ${ANSI_GREEN}($((ctr + 1))/${#PRUNED_ABANDONED_DIRS[@]})${ANSI_CLEAR}"
+                        rclone purge "${REMOTE}/${PRUNED_ABANDONED_DIRS[ctr]}"
                     done
 
                     # Newline.

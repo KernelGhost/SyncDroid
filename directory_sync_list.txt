@@ -9,6 +9,7 @@
 # The following will be ignored:
 # - Empty lines.
 # - Leading and trailing whitespace.
+# - All trailing forward slashes.
 # - Lines starting with `#`.
 # - Content following a `#` on any given line (with subsequent whitespace trimming).
 

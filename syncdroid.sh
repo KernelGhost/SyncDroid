@@ -326,6 +326,9 @@ function syncdroid() {
     rclone mkdir "$REMOTE" --ask-password=false
 
     # REMOVE ABANDONED DIRECTORIES & FILES
+    # Provide feedback.
+    echo -e "${ANSI_BLUE}[INFO]${ANSI_CLEAR} Enumerating directories and files. This may take a while."
+
     # Recursively identify directories present on remote.
     # Note: 'awk' is required to remove trailing forward slashes after directory names.
     mapfile -t REMOTE_DIRS < <(rclone lsf --dirs-only --recursive "$REMOTE" | awk '{sub(/\/$/, "", $0); print}')
